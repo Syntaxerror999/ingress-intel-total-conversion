@@ -712,7 +712,10 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 			var distance = L.point(e.originalEvent.clientX, e.originalEvent.clientY)
 				.distanceTo(this._mouseDownOrigin);
 			if (Math.abs(distance) < 9 * (window.devicePixelRatio || 1)) {
-				this.addVertex(e.latlng);
+				var latlng = e.latlng;
+				if (this.options.snapPoint) 
+					latlng = this.options.snapPoint(latlng);
+				this.addVertex(latlng);
 			}
 		}
 		this._mouseDownOrigin = null;
@@ -1132,6 +1135,9 @@ L.Draw.SimpleShape = L.Draw.Feature.extend({
 		this._isDrawing = true;
 		this._startLatLng = e.latlng;
 
+		if (this.options.snapPoint) 
+			this._startLatLng = this.options.snapPoint(this._startLatLng);
+
 		L.DomEvent
 			.on(document, 'mouseup', this._onMouseUp, this)
 			.on(document, 'touchend', this._onMouseUp, this)
@@ -1404,6 +1410,9 @@ L.Draw.Marker = L.Draw.Feature.extend({
 	},
 
 	_onClick: function () {
+		if (this.options.snapPoint) 
+			this._marker.setLatLng(this.options.snapPoint(this._marker.getLatLng()));
+
 		this._fireCreatedEvent();
 
 		this.disable();
