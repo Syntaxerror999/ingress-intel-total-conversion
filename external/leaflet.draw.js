@@ -197,7 +197,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 		TYPE: 'polyline'
 	},
 
-	Poly: L.Polyline,
+	Poly: L.GeodesicPolyline,
 
 	options: {
 		allowIntersection: true,
@@ -258,7 +258,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 			this._markerGroup = new L.LayerGroup();
 			this._map.addLayer(this._markerGroup);
 
-			this._poly = new L.Polyline([], this.options.shapeOptions);
+			this._poly = new L.GeodesicPolyline([], this.options.shapeOptions);
 
 			this._tooltip.updateContent(this._getTooltipText());
 
@@ -693,7 +693,7 @@ L.Draw.Polygon = L.Draw.Polyline.extend({
 		TYPE: 'polygon'
 	},
 
-	Poly: L.Polygon,
+	Poly: L.GeodesicPolygon,
 
 	options: {
 		showArea: false,
@@ -1243,8 +1243,8 @@ L.Edit.Poly = L.Handler.extend({
 	// Compatibility method to normalize Poly* objects
 	// between 0.7.x and 1.0+
 	_defaultShape: function () {
-		if (!L.Polyline._flat) { return this._poly._latlngs; }
-		return L.Polyline._flat(this._poly._latlngs) ? this._poly._latlngs : this._poly._latlngs[0];
+		if (!L.GeodesicPolyline._flat) { return this._poly._latlngs; }
+		return L.GeodesicPolyline._flat(this._poly._latlngs) ? this._poly._latlngs : this._poly._latlngs[0];
 	},
 
 	_eachVertexHandler: function (callback) {
@@ -1325,14 +1325,14 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 	// Compatibility method to normalize Poly* objects
 	// between 0.7.x and 1.0+
 	_defaultShape: function () {
-		if (!L.Polyline._flat) { return this._latlngs; }
-		return L.Polyline._flat(this._latlngs) ? this._latlngs : this._latlngs[0];
+		if (!L.GeodesicPolyline._flat) { return this._latlngs; }
+		return L.GeodesicPolyline._flat(this._latlngs) ? this._latlngs : this._latlngs[0];
 	},
 
 	addHooks: function () {
 		var poly = this._poly;
 
-		if (!(poly instanceof L.Polygon)) {
+		if (!(poly instanceof L.GeodesicPolygon)) {
 			poly.options.fill = false;
 			if (poly.options.editing) {
 				poly.options.editing.fill = false;
@@ -1388,7 +1388,7 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 		var markerLeft, markerRight;
 
 		for (i = 0, j = len - 1; i < len; j = i++) {
-			if (i === 0 && !(L.Polygon && (this._poly instanceof L.Polygon))) {
+			if (i === 0 && !(L.GeodesicPolygon && (this._poly instanceof L.GeodesicPolygon))) {
 				continue;
 			}
 
@@ -1516,7 +1516,7 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 
 	_onMarkerClick: function (e) {
 
-		var minPoints = L.Polygon && (this._poly instanceof L.Polygon) ? 4 : 3,
+		var minPoints = L.GeodesicPolygon && (this._poly instanceof L.GeodesicPolygon) ? 4 : 3,
 			marker = e.target;
 
 		// If removing this point would create an invalid polyline/polygon don't remove
@@ -1657,7 +1657,7 @@ L.Edit.PolyVerticesEdit = L.Handler.extend({
 	}
 });
 
-L.Polyline.addInitHook(function () {
+L.GeodesicPolyline.addInitHook(function () {
 
 	// Check to see if handler has already been initialized. This is to support versions of Leaflet that still have L.Handler.PolyEdit
 	if (this.editing) {
@@ -2462,7 +2462,7 @@ L.Util.extend(L.LineUtil, {
 	}
 });
 
-L.Polyline.include({
+L.GeodesicPolyline.include({
 	// Check to see if this polyline has any linesegments that intersect.
 	// NOTE: does not support detecting intersection for degenerate cases.
 	intersects: function () {
@@ -2562,7 +2562,7 @@ L.Polyline.include({
 });
 
 
-L.Polygon.include({
+L.GeodesicPolygon.include({
 	// Checks a polygon for any intersecting line segments. Ignores holes.
 	intersects: function () {
 		var polylineIntersects,
@@ -2573,7 +2573,7 @@ L.Polygon.include({
 			return false;
 		}
 
-		polylineIntersects = L.Polyline.prototype.intersects.call(this);
+		polylineIntersects = L.GeodesicPolyline.prototype.intersects.call(this);
 
 		// If already found an intersection don't need to check for any more.
 		if (polylineIntersects) {
@@ -3401,7 +3401,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 
 		if (!this._uneditedLayerProps[id]) {
 			// Polyline, Polygon or Rectangle
-			if (layer instanceof L.Polyline || layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+			if (layer instanceof L.GeodesicPolyline || layer instanceof L.GeodesicPolygon || layer instanceof L.Rectangle) {
 				this._uneditedLayerProps[id] = {
 					latlngs: L.LatLngUtil.cloneLatLngs(layer.getLatLngs())
 				};
@@ -3434,7 +3434,7 @@ L.EditToolbar.Edit = L.Handler.extend({
 		layer.edited = false;
 		if (this._uneditedLayerProps.hasOwnProperty(id)) {
 			// Polyline, Polygon or Rectangle
-			if (layer instanceof L.Polyline || layer instanceof L.Polygon || layer instanceof L.Rectangle) {
+			if (layer instanceof L.GeodesicPolyline || layer instanceof L.GeodesicPolygon || layer instanceof L.Rectangle) {
 				layer.setLatLngs(this._uneditedLayerProps[id].latlngs);
 			} else if (layer instanceof L.Circle) {
 				layer.setLatLng(this._uneditedLayerProps[id].latlng);
