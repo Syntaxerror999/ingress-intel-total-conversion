@@ -706,6 +706,7 @@ L.Draw.Polyline = L.Draw.Feature.extend({
 	},
 
 	_onMouseUp: function (e) {
+		this._currentLatLng = e.latlng;
 		if (this._mouseDownOrigin) {
 			// We detect clicks within a certain tolerance, otherwise let it
 			// be interpreted as a drag by the map
